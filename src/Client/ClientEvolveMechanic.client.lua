@@ -1,5 +1,5 @@
 local UserInputService = game:GetService("UserInputService")
-local holdingE = false
+local holdingV = false
 local startTime = 0
 local RunService = game:GetService("RunService")
 local Player = game.Players.LocalPlayer
@@ -22,8 +22,9 @@ local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.I
 local tween = TweenService:Create(EvolveText, tweenInfo, {Position = targetPosition})
 
 local function onInputEnded(input, player)
+	-- a bit confusing
 	if input.KeyCode == Enum.KeyCode.V then
-		holdingE = false
+		holdingV = false
 		Label.Visible = false
 		Label.TextColor3 = Color3.fromRGB(0, 0, 0)
 		resetTimer = tick()
@@ -33,6 +34,7 @@ end
 local function Evolve()
 	local character = Player.Character
 	if character then
+		-- check the stage of the player
 		if EvolveValue.Value == 0 then
 			local humanoid = character:FindFirstChildOfClass("Humanoid")
 			humanoid.MaxHealth = 1000
@@ -84,18 +86,18 @@ local function CountDown()
 
 	countdownInProgress = true
 	Label.Visible = true
-	holdingE = true
+	holdingV = true
 
 	for i = 5, 1, -1 do
 		Label.Text = tostring(i)
 		wait(1)
 
-		if not holdingE then
+		if not holdingV then
 			break
 		end
 	end
 
-	if holdingE then
+	if holdingV then
 		Evolve()
 	end
 
@@ -104,7 +106,7 @@ end
 
 local function onInputBegan(input, player)
 	if input.KeyCode == Enum.KeyCode.V then
-		if not holdingE then
+		if not holdingV then
 			CountDown()
 		end
 		resetTimer = 0
@@ -116,7 +118,7 @@ UserInputService.InputEnded:Connect(onInputEnded)
 
 RunService.Heartbeat:Connect(function()
 	if resetTimer ~= 0 and tick() - resetTimer >= 5 then
-		holdingE = false
+		holdingV = false
 		resetTimer = 0
 	end
 end)
