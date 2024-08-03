@@ -9,9 +9,12 @@ local resetTimer = 0
 local countdownInProgress = false
 local PlayerScripts = Player:WaitForChild("PlayerScripts", 5)
 local EvolveValue = PlayerScripts:WaitForChild("Evolved")
+-- testing
+EvolveValue.Value = 2
+Stage3Button.Visible = true
 
-local Backpack = Player:WaitForChild("Backpack")
 -- scaling the blaster isn't neccessary, though I could use the same logic to scale future abilities 
+local Backpack = Player:WaitForChild("Backpack")
 local Blaster = Backpack:WaitForChild("Blaster")
 
 -- Creating a tween for a gui
@@ -22,7 +25,7 @@ local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.I
 local tween = TweenService:Create(EvolveText, tweenInfo, {Position = targetPosition})
 
 local function onInputEnded(input, player)
-	-- a bit confusing
+	-- the input ends... self-explanatory, though the code isn't
 	if input.KeyCode == Enum.KeyCode.V then
 		holdingV = false
 		Label.Visible = false
@@ -34,7 +37,7 @@ end
 local function Evolve()
 	local character = Player.Character
 	if character then
-		-- check the stage of the player
+		-- I could simplify this 
 		if EvolveValue.Value == 0 then
 			local humanoid = character:FindFirstChildOfClass("Humanoid")
 			humanoid.MaxHealth = 1000
@@ -88,7 +91,7 @@ local function CountDown()
 	Label.Visible = true
 	holdingV = true
 
-	for i = 5, 1, -1 do
+	for i = 1, 1, -1 do
 		Label.Text = tostring(i)
 		wait(1)
 
