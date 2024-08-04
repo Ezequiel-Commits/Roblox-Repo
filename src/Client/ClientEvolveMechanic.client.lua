@@ -9,9 +9,6 @@ local resetTimer = 0
 local countdownInProgress = false
 local PlayerScripts = Player:WaitForChild("PlayerScripts", 5)
 local EvolveValue = PlayerScripts:WaitForChild("Evolved")
--- testing
-EvolveValue.Value = 2
-Stage3Button.Visible = true
 
 -- scaling the blaster isn't neccessary, though I could use the same logic to scale future abilities 
 local Backpack = Player:WaitForChild("Backpack")
@@ -91,7 +88,7 @@ local function CountDown()
 	Label.Visible = true
 	holdingV = true
 
-	for i = 1, 1, -1 do
+	for i = 5, 1, -1 do
 		Label.Text = tostring(i)
 		wait(1)
 

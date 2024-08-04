@@ -17,7 +17,8 @@ local function FireAbility(AbilityName)
         
         local CastingTime = 7.5 -- is there a better way to implement this casting time? -- Could I pass it as a parameter? 
         local AbilityCooldown = 10 + CastingTime
-        if DebounceModule.Debounce(TimeOfPreviousFire, AbilityCooldown) and DebounceModule.NoAbilityRunning(AbilityRunning) then
+        -- eliminating ability cooldown for testing
+        if DebounceModule.Debounce(TimeOfPreviousFire, 0) and DebounceModule.NoAbilityRunning(AbilityRunning) then
            
             -- if the conditions are fulfilled, cast the ability, start a cooldown,
             -- and make sure other abilities cannot be cast for "CastingTime" seconds
