@@ -32,7 +32,8 @@ local function FireAbility(AbilityName)
     elseif AbilityName == "RockThrow" then
         
         local CastingTime = 2 
-        local AbilityCooldown = 5 + CastingTime
+        -- local AbilityCooldown = 5 + CastingTime
+        local AbilityCooldown = 0
         if DebounceModule.Debounce(TimeOfPreviousRock, AbilityCooldown) and DebounceModule.NoAbilityRunning(AbilityRunning) then
             
             AbilityRunning = not AbilityRunning
