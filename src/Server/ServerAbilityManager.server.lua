@@ -2,6 +2,7 @@
 local replicatedStorage = game.ReplicatedStorage
 Bezier = require(replicatedStorage.Shared.BezierModule)
 local Debris = game:GetService("Debris")
+local ServerStorage = game:GetService("ServerStorage")
 local rand = Random.new()
 
 local function ChangePlayerMovement(player, speed)
@@ -73,81 +74,26 @@ local function FireBreathFunc(player)
 	ChangePlayerMovement(player, 16)
 end
 
-local function RockThrowFunc(player)
-
-	local character = player.Character or player.CharacterAdded:wait()
-	local head = character.Head
-
-	ChangePlayerMovement(player, 5)
-
-	local rockStart = replicatedStorage.AbilityFolder.RockThrowFolder.rockStart:Clone()
-	rockStart.Parent = game.Workspace
-	local rockEnd = replicatedStorage.AbilityFolder.RockThrowFolder.rockEnd:Clone()
-	rockEnd.Parent = game.Workspace
-	
-	local offset1 = Vector3.new(-1,3,0)
-	rockStart:PivotTo(head.CFrame * CFrame.new(offset1))
-	
-	local offset2 = Vector3.new(-1,3,-30)
-	rockEnd:PivotTo(head.CFrame * CFrame.new(offset2))
-	
-	local position1 = rockStart.Position
-	local position2 = rockEnd.Position
-	local direction = position2 - position1
-	print(position1, position2)
-	print(direction)
-
-	
-	local duration = math.log(1.001 + direction.Magnitude * 0.01)
-	local force = direction / duration + Vector3.new(0, game.Workspace.Gravity * duration * 0.5, 0)
-	
-	local rock = replicatedStorage.AbilityFolder.RockThrowFolder.Rock.Part:Clone()
-	rock.Parent = game.Workspace
-	rock.Position = position1
-	rock:ApplyImpulse(force * rock.AssemblyMass)
-	
-	rock.Touched:Connect(function(otherPart)
-		
-		print(otherPart)
-		DamageFunc(otherPart, rock, 30)
-		if not otherPart:IsDescendantOf(character) then
-			rock:Destroy()
-			rock = nil
-		end
-		
-	end)
-	
-	
-	Debris:AddItem(rockStart, 7.5)
-	Debris:AddItem(rockEnd, 7.5)
-	Debris:AddItem(rock, 7.5)
-	ChangePlayerMovement(player, 16)
-end
-
 local function BezierFunc(player)
 	local character = player.character or player.characterAdded:wait()
 	local HumanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	local workspace = game.Workspace
 
-	local Point0 = Instance.new("Part")
-	local Point1 = Instance.new("Part")
-	local Point2 = Instance.new("Part")
-	local Point3 = Instance.new("Part")
-
-	Point0.Name = "p0"
-	Point1.Name = "p1"
-	Point2.Name = "p2"
-	Point3.Name = "p3"
+	--create and store these in the replicated storage
+	local Point0 = ServerStorage.p0:Clone()
+	local Point1 = ServerStorage.p1:Clone()
+	local Point2 = ServerStorage.p2:Clone()
+	local Point3 = ServerStorage.p3:Clone()
 
 	Point0.Parent = workspace
 	Point1.Parent = workspace
 	Point2.Parent = workspace
 	Point3.Parent = workspace
 
-	Point0.Transparency = 1
-	Point1.Transparency = 1
-	Point2.Transparency = 1
-	Point3.Transparency = 1
+	Point0.Transparency = 0
+	Point1.Transparency = 0
+	Point2.Transparency = 0
+	Point3.Transparency = 0
 
 	-- find the numbers that work for the rock throw functin
 	local Point0Position  = Vector3.new(0,0, -2*2)
@@ -172,7 +118,7 @@ local function BezierFunc(player)
 	local p2pos = workspace.p2.Position
 	local p3pos = workspace.p3.Position
 
-	local markerTemplate = Instance.new("Part")
+	local markerTemplate = ServerStorage.markerTemplate:Clone()
 	markerTemplate.Parent = game.ServerStorage
 
 	local curve = Bezier.newCurve(20, p0pos, p1pos, p2pos, p3pos)
@@ -184,9 +130,68 @@ local function BezierFunc(player)
 		
 		marker.Position = curve:CalcT(t)
 		marker.Parent = workspace
-		marker.Transparency = 1
+		marker.Transparency = 0
+
+		Debris:AddItem(marker,1)
 	end
 end
+
+local function RockThrowFunc(player)
+
+	local character = player.Character or player.CharacterAdded:wait()
+	local head = character.Head
+
+	ChangePlayerMovement(player, 5)
+
+	local rockStart = replicatedStorage.AbilityFolder.RockThrowFolder.rockStart:Clone()
+	rockStart.Parent = game.Workspace
+	local rockEnd = replicatedStorage.AbilityFolder.RockThrowFolder.rockEnd:Clone()
+	rockEnd.Parent = game.Workspace
+	
+	local offset1 = Vector3.new(-1,3,0)
+	rockStart:PivotTo(head.CFrame * CFrame.new(offset1))
+	-- Raycasting the end position of the curve. I think the duration and force should 
+	-- stay the same 
+	local offset2 = Vector3.new(-1,3,-30)
+	rockEnd:PivotTo(head.CFrame * CFrame.new(offset2))
+	
+	local position1 = rockStart.Position
+	local position2 = rockEnd.Position
+	local direction = position2 - position1
+	print(direction)
+
+	
+	local duration = math.log(1.001 + direction.Magnitude * 0.01)
+	local force = direction / duration + Vector3.new(0, game.Workspace.Gravity * duration * 0.5, 0)
+	
+	BezierFunc(player)
+	
+	local rock = replicatedStorage.AbilityFolder.RockThrowFolder.Rock.Part:Clone()
+	rock.Parent = game.Workspace
+	rock.Position = position1
+	rock.Anchored = true
+	task.wait(1)
+	rock.Anchored = false
+	rock:ApplyImpulse(force * rock.AssemblyMass)
+	
+	rock.Touched:Connect(function(otherPart)
+		
+		print(otherPart)
+		DamageFunc(otherPart, rock, 30)
+		if not otherPart:IsDescendantOf(character) then
+			rock:Destroy()
+			rock = nil
+		end
+		
+	end)
+	
+	
+	Debris:AddItem(rockStart, 7.5)
+	Debris:AddItem(rockEnd, 7.5)
+	Debris:AddItem(rock, 7.5)
+	ChangePlayerMovement(player, 16)
+end
+
 
 replicatedStorage.AbilityFolder.FireBreathFolder.FireBreath.OnServerEvent:Connect(FireBreathFunc)
 replicatedStorage.AbilityFolder.RockThrowFolder.RockThrow.OnServerEvent:Connect(RockThrowFunc)
