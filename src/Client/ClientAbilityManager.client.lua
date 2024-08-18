@@ -1,13 +1,78 @@
 local Players = game:GetService("Players")
+local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 local DebounceModule = require(game.ReplicatedStorage.Shared.DebounceModule)
 local AbilityRunning = false
+local Mouse = player:GetMouse()
+
+maxMouseDistance = 100
+maxLaserDistance = 50
+
+local playerPart = Instance.new("Part", workspace)
+playerPart.Name = player.Name.."_Part"
+playerPart.Anchored = true
+playerPart.CanCollide = false
+playerPart.CastShadow = false
+playerPart.Size = Vector3.one
+playerPart.Transparency = 0
 
 -- tick values 
 local TimeOfPreviousFire = 0
 local TimeOfPreviousRock = 0
 local TimeOfPreviousLeap = 0
 
+local function GetWorldMousePosition()
+	local mouseLocation = userInputService:GetMouseLocation()
+
+	local screenToWorldRay = workspace.CurrentCamera:ViewportPointToRay(mouseLocation.X, mouseLocation.Y)
+	local directionVector = screenToWorldRay.Direction * maxMouseDistance
+	
+	local RaycastParams = RaycastParams.new()
+	RaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	RaycastParams.FilterDescendantsInstances = {player.Character}
+
+	local raycastResult = workspace:Raycast(screenToWorldRay.Origin, directionVector)
+
+	return playerPart.Position
+end
+
+local function fireRay()
+	local mouseLocation = GetWorldMousePosition()
+    local playerHead = player.Character.Head
+
+	local targetLocation = (mouseLocation - playerHead.Position).Unit
+	local directionVector = targetLocation * maxLaserDistance
+
+	local abilityRaycastParams = RaycastParams.new()
+	abilityRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	abilityRaycastParams.FilterDescendantsInstances = {player.Character}
+	
+	
+	local abilityRaycastResult = workspace:Raycast(playerHead.Position, playerPart.Position, abilityRaycastParams)
+
+	local hitPosition
+	if abilityRaycastResult then
+		hitPosition = abilityRaycastResult.Position
+
+		-- some tracer statements
+		if abilityRaycastResult.Instance then
+			local item = abilityRaycastResult.Instance
+			print("abilityRaycast Instance:" .. item.Name)
+		end
+
+	else
+		hitPosition = playerHead.Position + directionVector
+	end
+    game.ReplicatedStorage.AbilityFolder.RockThrowFolder.RockThrow:FireServer(hitPosition)
+
+    -- ??
+    Mouse.Move:Connect(function()
+        if playerPart ~= nil then
+            playerPart.Position = playerHead.Position + (Mouse.Hit.Position - playerHead.Position).Unit * 200
+        end
+    end)
+
+end
 
 local function FireAbility(AbilityName)
     
@@ -38,8 +103,9 @@ local function FireAbility(AbilityName)
             
             AbilityRunning = not AbilityRunning
             TimeOfPreviousRock = tick()
-            game.ReplicatedStorage.AbilityFolder.RockThrowFolder.RockThrow:FireServer()
-            wait(CastingTime)
+            GetWorldMousePosition()
+            fireRay()
+            task.wait(CastingTime)
             AbilityRunning = not AbilityRunning
 
         end

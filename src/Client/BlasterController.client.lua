@@ -20,13 +20,7 @@ local ReloadAction = "reloadWeapon"
 local reloadAnimation = Blaster:WaitForChild("ReloadAnimation")
 reloadAnimation.AnimationId = "rbxassetid://14373884395"
 
-local playerPart = Instance.new("Part", workspace)
-playerPart.Name = player.Name.."_Part"
-playerPart.Anchored = true
-playerPart.CanCollide = false
-playerPart.CastShadow = false
-playerPart.Size = Vector3.one
-playerPart.Transparency = 0
+local playerPart = game.Workspace[player.name.."_Part"]
 
 local function reload(char, animation)
 	-- create a function to be binded to 
@@ -101,7 +95,7 @@ local function fireWeapon()
 	weaponRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
 	weaponRaycastParams.FilterDescendantsInstances = {player.Character, Blaster, workspace["CanQuery test"]}
 	
-	-- add some code to avoid clicking on the player's body parts]]
+	
 	local weaponRaycastResult = workspace:Raycast(Blaster.Handle.Position, playerPart.Position, weaponRaycastParams)
 
 	local hitPosition

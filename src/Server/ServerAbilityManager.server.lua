@@ -136,7 +136,7 @@ local function BezierFunc(player)
 	end
 end
 
-local function RockThrowFunc(player)
+local function RockThrowFunc(player, position2)
 
 	local character = player.Character or player.CharacterAdded:wait()
 	local head = character.Head
@@ -156,9 +156,12 @@ local function RockThrowFunc(player)
 	rockEnd:PivotTo(head.CFrame * CFrame.new(offset2))
 	
 	local position1 = rockStart.Position
-	local position2 = rockEnd.Position
+	-- local position2 = rockEnd.Position
+	print("pos2")
+	print(position2)
+	print("rockend.position")
+	print(rockEnd.Position)
 	local direction = position2 - position1
-	print(direction)
 
 	
 	local duration = math.log(1.001 + direction.Magnitude * 0.01)
@@ -177,8 +180,8 @@ local function RockThrowFunc(player)
 	rock.Touched:Connect(function(otherPart)
 		
 		print(otherPart)
-		DamageFunc(otherPart, rock, 30)
 		if not otherPart:IsDescendantOf(character) then
+			DamageFunc(otherPart, rock, 30)
 			rock:Destroy()
 			rock = nil
 		end
